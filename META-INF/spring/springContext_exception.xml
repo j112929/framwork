@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		 http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"
+       default-autowire="byName">
+    <bean id="buisnessHandler" class="com.plocc.framework.exception.handler.impl.BusinessHandlerImpl">
+    </bean>
+    
+    <!--<bean id="jsonBuisnessHandler" class="com.plocc.framework.exception.handler.impl.JsonBusinessHandlerImpl">
+ </bean>-->
+    
+    <bean id="systemHandler" class="com.plocc.framework.exception.handler.impl.SystemHandlerImpl">
+    	<property name="nextHandler" ref="logHandler"/>
+    </bean>
+    
+    <!--<bean id="jsonSystemHandler" class="com.plocc.framework.exception.handler.impl.JsonSystemHandlerImpl">
+    	<property name="nextHandler" ref="logHandler"/>
+    </bean>-->
+    
+    <bean id="defaultHandler" class="com.plocc.framework.exception.handler.impl.DefaultHandlerImpl">
+    	<property name="nextHandler" ref="logHandler"/>
+    </bean>
+    
+    <bean id="emailHandler" class="com.plocc.framework.exception.handler.impl.EmailHandlerImpl">
+    	<property name="nextHandler" ref="smsHandler"/>
+    </bean>
+    
+    <bean id="smsHandler" class="com.plocc.framework.exception.handler.impl.SmsHandlerImpl">
+    </bean>
+    
+    <bean id="logHandler" class="com.plocc.framework.exception.handler.impl.LogHandlerImpl">
+    	<property name="nextHandler" ref="emailHandler"/>
+    </bean>
+    
+    <bean id="handlerFactory" class="com.plocc.framework.exception.handler.factory.HandlerFactory">
+		<property name="handlerMap">
+			<map key-type="java.lang.Class" value-type="com.plocc.framework.exception.handler.Handler">
+				<entry key="com.plocc.framework.exception.BusinessException" value-ref="buisnessHandler" />
+				<!--<entry key="com.plocc.framework.exception.JsonBusinessException" value-ref="jsonBuisnessHandler" />-->
+				<entry key="com.plocc.framework.exception.SystemException" value-ref="systemHandler" />
+				<!--<entry key="com.plocc.framework.exception.JsonSystemException" value-ref="jsonSystemHandler" /> -->
+			</map>
+		</property>
+		<property name="defaultHandler" ref="defaultHandler" />
+	</bean>
+	
+	<bean id="exceptionAsyncExecuteService" class="com.plocc.framework.async.impl.AsyncExecuteServiceImpl">
+		<constructor-arg>
+				<props>     
+                	<prop key="aes_core_pool_size">10</prop>     
+                	<prop key="aes_max_pool_size">50</prop>   
+                	<prop key="aes_keep_alive_time">30</prop>
+                	<prop key="aes_work_queue_size">1000</prop>  
+            	</props> 
+		</constructor-arg>
+	</bean>
+	
+	<!--远程接口引用 consultService -->
+    <!--<bean id="messageOpenAPI" class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+        <property name="serviceUrl">
+            <value>${message.serviceUrl}/MessageOpenAPI</value>
+        </property>
+        <property name="serviceInterface">
+            <value>com.plocc.message.service.MessageOpenAPI</value>
+        </property>
+    </bean> 
+-->
+
+</beans>
